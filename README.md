@@ -9,27 +9,28 @@ Optimization and hosted comparison happen on Seldon. The runtime contains no
 optimizer, billing service, dashboard or server infrastructure. Its first local
 model adapter uses pinned GLiNER2 open weights for extraction and classification.
 
-This is a source preview. A source checkout or successful build does not establish
-PyPI publication, production feature activation, or quality on your own inputs.
+The first preview, [\`0.1.1.dev0\`](https://pypi.org/project/seldon-runtime/0.1.1.dev0/),
+is available on PyPI. Local execution requires a Seldon deployment with bundle
+delivery enabled for your workspace.
 
 ## Install
 
 Python 3.11 or later is required. The base interpreter uses Pydantic, jsonschema
 and tiktoken. Local GLiNER inference additionally needs PyTorch and the model extra.
-Before publication, replace the package name below with a locally built wheel.
+The commands below pin the published preview.
 
 On Linux, install CPU PyTorch explicitly to avoid downloading CUDA dependencies:
 
 ```sh
 python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-python -m pip install 'seldon-runtime[gliner]'
+python -m pip install 'seldon-runtime[gliner]==0.1.1.dev0'
 ```
 
 On macOS:
 
 ```sh
 python -m pip install torch
-python -m pip install 'seldon-runtime[gliner]'
+python -m pip install 'seldon-runtime[gliner]==0.1.1.dev0'
 ```
 
 In a uv environment, use `uv pip install` for the same commands. In a Linux uv
@@ -37,7 +38,7 @@ project, persist the dedicated torch index:
 
 ```sh
 uv add torch --index pytorch=https://download.pytorch.org/whl/cpu
-uv add 'seldon-runtime[gliner]'
+uv add 'seldon-runtime[gliner]==0.1.1.dev0'
 ```
 
 The model weights and tokenizer files download on first use. Cache the pinned
