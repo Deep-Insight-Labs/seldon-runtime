@@ -1,0 +1,128 @@
+{
+ "digest": "0837795308ec29fc519ed6188dc0df60b578227c9ac084c74ffb45bbf33c4a86",
+ "plan": {
+  "fallback": true,
+  "max_items": 1000,
+  "steps": [
+   {
+    "call": "call1",
+    "config": {},
+    "id": "cheap",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": "cheap",
+    "next": "gate",
+    "op": "llm",
+    "output_binding": "stage",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {},
+    "false_next": "joined",
+    "id": "gate",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "branch",
+    "output_schema": null,
+    "predicate": {
+     "clauses": [],
+     "operator": "eq",
+     "source": "input#/escalate",
+     "value": true
+    },
+    "prompt": null,
+    "true_next": "medium"
+   },
+   {
+    "call": "call1",
+    "config": {},
+    "id": "medium",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": "medium",
+    "next": "nested",
+    "op": "llm",
+    "output_binding": "stage",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {},
+    "false_next": "joined",
+    "id": "nested",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "branch",
+    "output_schema": null,
+    "predicate": {
+     "clauses": [],
+     "operator": "eq",
+     "source": "input#/nested",
+     "value": true
+    },
+    "prompt": null,
+    "true_next": "strong"
+   },
+   {
+    "call": "call1",
+    "config": {},
+    "id": "strong",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": "strong",
+    "next": "joined",
+    "op": "llm",
+    "output_binding": "stage",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "bind_call": "call1",
+    "call": null,
+    "config": {},
+    "id": "joined",
+    "incoming": {
+     "gate": "cheap#",
+     "nested": "medium#",
+     "strong": "strong#"
+    },
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "next": "result",
+    "op": "merge",
+    "output_schema": {
+     "type": "object"
+    },
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {},
+    "id": "result",
+    "inputs": [
+     "joined#"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "return",
+    "output_schema": null,
+    "prompt": null
+   }
+  ],
+  "version": "function-plan-v5"
+ },
+ "version": "function-plan-v5"
+}

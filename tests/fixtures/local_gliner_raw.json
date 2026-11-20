@@ -1,0 +1,97 @@
+{
+  "spans": {
+    "call": "extract_entities",
+    "raw": {
+      "entities": {
+        "person": [
+          {
+            "text": "Bob Smith",
+            "confidence": 0.9958196878433228,
+            "start": 17,
+            "end": 26
+          },
+          {
+            "text": "Ada Lovelace",
+            "confidence": 0.9947860240936279,
+            "start": 0,
+            "end": 12
+          }
+        ],
+        "city": [
+          {
+            "text": "London",
+            "confidence": 0.9988579750061035,
+            "start": 30,
+            "end": 36
+          }
+        ]
+      }
+    }
+  },
+  "records": {
+    "call": "extract_json",
+    "raw": {
+      "jobs": [
+        {
+          "name": {
+            "text": "Ada Lovelace",
+            "confidence": 0.9941722750663757,
+            "start": 0,
+            "end": 12
+          },
+          "company": {
+            "text": "Acme Corp",
+            "confidence": 0.9891355037689209,
+            "start": 22,
+            "end": 31
+          },
+          "confidence": 0.9941722750663757
+        },
+        {
+          "name": {
+            "text": "Bob Smith",
+            "confidence": 0.9947629570960999,
+            "start": 33,
+            "end": 42
+          },
+          "company": {
+            "text": "Globex",
+            "confidence": 0.774881899356842,
+            "start": 52,
+            "end": 58
+          },
+          "confidence": 0.9947629570960999
+        }
+      ]
+    }
+  },
+  "classification": {
+    "call": "classify_text",
+    "raw": {
+      "sentiment": {
+        "label": "positive",
+        "confidence": 0.9999995231628418
+      }
+    }
+  },
+  "constrained": {
+    "call": "classify_constrained",
+    "raw": {
+      "sentiment": {
+        "value": "positive",
+        "confidence": 0.9999745348953227,
+        "probabilities": {
+          "positive": 0.9999745348953227,
+          "negative": 2.5465104677226272e-05
+        }
+      },
+      "_meta": {
+        "feasible": true,
+        "decoder": "independent",
+        "exact": true,
+        "objective": 5.055232048034668,
+        "violations": []
+      }
+    }
+  }
+}

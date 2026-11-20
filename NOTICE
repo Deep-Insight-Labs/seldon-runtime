@@ -1,0 +1,9 @@
+Seldon Runtime
+Copyright 2026 Deep Insight Labs
+
+This Apache-2.0 distribution contains the standalone Function interpreter and
+local execution client. The Seldon service, optimizer, billing, orchestration,
+infrastructure and dashboard are not part of this distribution.
+
+Optional GLiNER2 code and downloaded model weights remain under their respective
+upstream licenses. Their licenses are not replaced by this project license.

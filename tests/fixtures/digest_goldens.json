@@ -1,0 +1,128 @@
+{
+ "specs": {
+  "minimal": {
+   "digest": "cc1fff22760601e0bf35a7ad8ff328717200d0429f1476e0bce3092c5e3b8462",
+   "spec": {
+    "calls": [
+     {
+      "id": "task",
+      "messages": [
+       {
+        "content": "Classify: {{text}}",
+        "role": "user"
+       }
+      ],
+      "model": "luna"
+     }
+    ],
+    "inputs": {
+     "text": "hello"
+    },
+    "output_schema": {
+     "additionalProperties": false,
+     "properties": {
+      "label": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "label"
+     ],
+     "type": "object"
+    },
+    "version": "function-spec-v1"
+   }
+  },
+  "rich": {
+   "digest": "6d1dfdee2b4bd5c1e608a84604571f09b88afdf10cb66a897576b897800a98b4",
+   "spec": {
+    "assumptions": [
+     "English only"
+    ],
+    "bindings": [
+     {
+      "call": "extract",
+      "message": 1,
+      "placeholder": "{{text}}",
+      "source": "input#/text"
+     }
+    ],
+    "calls": [
+     {
+      "id": "extract",
+      "max_tokens": 512,
+      "messages": [
+       {
+        "content": "Extract entities.",
+        "role": "system"
+       },
+       {
+        "content": "Text: {{text}}",
+        "role": "user"
+       }
+      ],
+      "model": "luna",
+      "response_format": {
+       "json_schema": {
+        "name": "out",
+        "schema": {
+         "properties": {
+          "names": {
+           "items": {
+            "type": "string"
+           },
+           "type": "array"
+          }
+         },
+         "required": [
+          "names"
+         ],
+         "type": "object"
+        }
+       },
+       "type": "json_schema"
+      },
+      "temperature": 0.2
+     }
+    ],
+    "evaluator": "rubric",
+    "input_schema": {
+     "properties": {
+      "text": {
+       "type": "string"
+      }
+     },
+     "required": [
+      "text"
+     ],
+     "type": "object"
+    },
+    "inputs": {
+     "text": "Ada met Grace é"
+    },
+    "output_schema": {
+     "properties": {
+      "names": {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      }
+     },
+     "required": [
+      "names"
+     ],
+     "type": "object"
+    },
+    "output_token_policy": "bounded_8192",
+    "rubric": {
+     "criteria": [
+      "Names are complete"
+     ],
+     "judge_model": "luna"
+    },
+    "version": "function-spec-v1"
+   }
+  }
+ }
+}

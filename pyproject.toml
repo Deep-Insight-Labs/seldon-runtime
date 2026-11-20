@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seldon-runtime"
+version = "0.1.1.dev0"
+description = "Standalone Seldon Functions interpreter and local execution client"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.2", "jsonschema>=4.21", "tiktoken>=0.7"]
+
+[project.urls]
+Source = "https://github.com/Deep-Insight-Labs/seldon-runtime"
+Issues = "https://github.com/Deep-Insight-Labs/seldon-runtime/issues"
+
+[project.optional-dependencies]
+gliner = ["gliner2[local]~=2.1.0"]
+dev = ["pytest>=8", "ruff==0.16.4", "build>=1", "twine>=6"]
+
+[tool.setuptools]
+packages = ["seldon_runtime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: builds and installs release distributions in fresh virtualenvs; needs network",
+    "local_model: runs pinned GLiNER weights; needs torch, gliner2 and network or cached weights",
+]
+addopts = "-m 'not slow and not local_model'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

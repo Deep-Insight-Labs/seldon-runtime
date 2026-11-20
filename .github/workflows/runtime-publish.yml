@@ -1,0 +1,143 @@
+name: Runtime Publish
+
+# Builds the standalone `seldon-runtime` wheel and (once enabled) publishes it to
+# PyPI via a trusted publisher (OIDC, no stored token; same pattern as the backend
+# deploy). Tag `runtime-v<version>` must equal the version in
+# pyproject.toml. Versions are immutable on PyPI: bump on
+# every publish.
+#
+# Publication stays disabled until registry setup is complete. The production
+# job requires SELDON_RUNTIME_PUBLISH_ENABLED, deliberately unset. First
+# register trusted publishers on TestPyPI/PyPI (project seldon-runtime, this
+# owner/repository, workflow runtime-publish.yml, environments testpypi/pypi),
+# create both GitHub environments, then enable the corresponding variables.
+
+on:
+  push:
+    tags: ["runtime-v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: runtime-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: checks
+    name: Build seldon-runtime wheel
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: python -m pip install -q build twine
+
+      - name: Verify tag matches package version
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          set -euo pipefail
+          version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+          if [ "$REF_TYPE" = "tag" ] && [ "$TAG" != "runtime-v$version" ]; then
+            echo "::error::tag $TAG does not match pyproject version runtime-v$version"
+            exit 1
+          fi
+
+      - name: Build sdist and wheel
+        run: |
+          set -euo pipefail
+          rm -rf build dist
+          python -m build
+
+      - name: Check distributions
+        run: python -m twine check dist/*
+
+      - name: Verify installed distributions
+        run: python scripts/verify_artifacts.py dist/*
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: seldon-runtime-dist
+          path: dist/
+          if-no-files-found: error
+
+  testpypi:
+    name: Publish to TestPyPI
+    needs: build
+    if: vars.SELDON_RUNTIME_TESTPYPI_PUBLISH_ENABLED == 'true' && startsWith(github.ref, 'refs/tags/runtime-v')
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: seldon-runtime-dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  installed-testpypi:
+    name: Verify installed TestPyPI runtime
+    needs: [build, testpypi]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download exact runtime and exercise installed artifact
+        env:
+          RUNTIME_VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          python -m pip download --no-deps --only-binary=:all: \
+            --index-url https://test.pypi.org/simple/ --dest downloaded \
+            "seldon-runtime==$RUNTIME_VERSION"
+          python -m venv "$RUNNER_TEMP/runtime-install"
+          "$RUNNER_TEMP/runtime-install/bin/python" -m pip install downloaded/*.whl
+          "$RUNNER_TEMP/runtime-install/bin/python" -I -c \
+            "import importlib.util; assert importlib.util.find_spec('seldon') is None"
+          "$RUNNER_TEMP/runtime-install/bin/python" -I tests/wheel_probe.py \
+            runtime_modules.txt \
+            tests/fixtures/serving_compat \
+            tests/fixtures/digest_goldens.json
+
+  publish:
+    name: Publish to PyPI
+    needs: [build, installed-testpypi]
+    # Dry run until Slice 8 (see header): never set the variable before the PyPI
+    # trusted publisher is configured.
+    if: vars.SELDON_RUNTIME_PUBLISH_ENABLED == 'true' && startsWith(github.ref, 'refs/tags/runtime-v')
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: seldon-runtime-dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

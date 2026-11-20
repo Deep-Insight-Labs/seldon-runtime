@@ -1,0 +1,106 @@
+{
+ "digest": "b77ef485d8249625b190aef8485fda52358887962af36a1ae96ad0e7b86e4ed9",
+ "plan": {
+  "fallback": true,
+  "max_items": 1000,
+  "steps": [
+   {
+    "call": null,
+    "config": {
+     "overlap": 128,
+     "size": 1792,
+     "unit": "tokens"
+    },
+    "id": "chunks",
+    "inputs": [
+     "input#/text"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "chunk_text",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "call": "call1",
+    "config": {
+     "questions": {
+      "risk_level": {
+       "options": [
+        "low",
+        "medium",
+        "high"
+       ],
+       "type": "choice"
+      }
+     },
+     "view": "bindings"
+    },
+    "id": "labels",
+    "inputs": [
+     "input#/text"
+    ],
+    "instruction_mode": "original_call_ref",
+    "max_chunks": 16,
+    "messages": null,
+    "model": "typesafe/jev-1.13.0",
+    "op": "choice",
+    "output_binding": "stage",
+    "output_schema": {
+     "additionalProperties": false,
+     "properties": {
+      "risk_level": {
+       "enum": [
+        "low",
+        "medium",
+        "high"
+       ],
+       "type": "string"
+      }
+     },
+     "required": [
+      "risk_level"
+     ],
+     "type": "object"
+    },
+    "over": "chunks#",
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {
+     "rule": "all_agree"
+    },
+    "id": "answer",
+    "inputs": [
+     "labels#"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "merge_labels",
+    "output_schema": {
+     "additionalProperties": false,
+     "properties": {
+      "risk_level": {
+       "enum": [
+        "low",
+        "medium",
+        "high"
+       ],
+       "type": "string"
+      }
+     },
+     "required": [
+      "risk_level"
+     ],
+     "type": "object"
+    },
+    "prompt": null
+   }
+  ],
+  "version": "function-plan-v4"
+ },
+ "version": "function-plan-v4"
+}

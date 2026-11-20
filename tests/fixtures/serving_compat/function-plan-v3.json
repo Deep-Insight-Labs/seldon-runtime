@@ -1,0 +1,192 @@
+{
+ "digest": "1437b68c243d5506287638145b5bfe84b6f876a45452407d3af7db6124ace20a",
+ "plan": {
+  "fallback": true,
+  "max_items": 1000,
+  "steps": [
+   {
+    "call": "task",
+    "config": {},
+    "id": "quotes",
+    "inputs": [
+     "input#/text"
+    ],
+    "instruction_mode": "append_instruction",
+    "messages": null,
+    "model": "luna",
+    "op": "llm",
+    "output_binding": "stage",
+    "output_schema": {
+     "additionalProperties": false,
+     "properties": {
+      "mentions": {
+       "items": {
+        "additionalProperties": false,
+        "properties": {
+         "label": {
+          "enum": [
+           "person",
+           "org"
+          ],
+          "type": "string"
+         },
+         "prefix": {
+          "type": "string"
+         },
+         "suffix": {
+          "type": "string"
+         },
+         "text": {
+          "minLength": 1,
+          "type": "string"
+         }
+        },
+        "required": [
+         "text",
+         "label",
+         "prefix",
+         "suffix"
+        ],
+        "type": "object"
+       },
+       "maxItems": 32,
+       "type": "array"
+      }
+     },
+     "required": [
+      "mentions"
+     ],
+     "type": "object"
+    },
+    "prompt": "For this intermediate stage identify every occurrence requested by the original instructions. Return exact text and its label, not numeric offsets. For repeated text provide exact immediately adjacent prefix and/or suffix from the same source to distinguish the occurrence. Use empty strings for unnecessary context. Do not normalize, invent or omit source text."
+   },
+   {
+    "call": null,
+    "config": {
+     "unaligned": "drop"
+    },
+    "id": "grounded",
+    "inputs": [
+     "input#/text",
+     "quotes#/mentions"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "align_spans",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {
+     "fields": {
+      "end": "/end",
+      "label": "/label",
+      "start": "/start",
+      "text": "/text"
+     }
+    },
+    "id": "projected",
+    "inputs": [
+     "grounded#"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "project_records",
+    "output_schema": {
+     "items": {
+      "additionalProperties": false,
+      "properties": {
+       "end": {
+        "type": "integer"
+       },
+       "label": {
+        "enum": [
+         "person",
+         "org"
+        ],
+        "type": "string"
+       },
+       "start": {
+        "type": "integer"
+       },
+       "text": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "text",
+       "label",
+       "start",
+       "end"
+      ],
+      "type": "object"
+     },
+     "type": "array"
+    },
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {
+     "fields": [
+      "entities"
+     ]
+    },
+    "id": "answer",
+    "inputs": [
+     "projected#"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "object",
+    "output_schema": {
+     "additionalProperties": false,
+     "properties": {
+      "entities": {
+       "items": {
+        "additionalProperties": false,
+        "properties": {
+         "end": {
+          "type": "integer"
+         },
+         "label": {
+          "enum": [
+           "person",
+           "org"
+          ],
+          "type": "string"
+         },
+         "start": {
+          "type": "integer"
+         },
+         "text": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "text",
+         "label",
+         "start",
+         "end"
+        ],
+        "type": "object"
+       },
+       "type": "array"
+      }
+     },
+     "required": [
+      "entities"
+     ],
+     "type": "object"
+    },
+    "prompt": null
+   }
+  ],
+  "version": "function-plan-v3"
+ },
+ "version": "function-plan-v3"
+}

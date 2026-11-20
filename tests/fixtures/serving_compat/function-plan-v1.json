@@ -1,0 +1,23 @@
+{
+ "digest": "1ada2b41420af2337a1300bb2ca6e41502e27482c030e1a8b2f0de7e917730dc",
+ "plan": {
+  "fallback": true,
+  "max_items": 1000,
+  "steps": [
+   {
+    "call": "classify",
+    "config": {},
+    "id": "classify",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": "openai/gpt-5.6-luna",
+    "op": "llm",
+    "output_schema": null,
+    "prompt": null
+   }
+  ],
+  "version": "function-plan-v1"
+ },
+ "version": "function-plan-v1"
+}

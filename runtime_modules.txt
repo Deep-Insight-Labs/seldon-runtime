@@ -1,0 +1,21 @@
+# Public interpreter modules, owned by this repository.
+contracts
+templates
+tool_wire
+conditional
+semantic
+executor
+components
+research_kernels
+provider_error
+deadline
+attempt_bound
+contract_versions
+native_schema
+json_pointer
+program_validation
+gliner_normalize
+output_budget
+instruction_envelope
+local_models
+local_telemetry

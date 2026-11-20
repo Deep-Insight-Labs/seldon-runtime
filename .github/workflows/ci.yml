@@ -1,0 +1,33 @@
+name: Runtime checks
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - python: '3.11'
+            pydantic: '2.2.0'
+          - python: '3.11'
+            pydantic: latest
+          - python: '3.13'
+            pydantic: latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '${{ matrix.python }}'
+      - run: python -m pip install '.[dev]'
+      - if: matrix.pydantic != 'latest'
+        run: python -m pip install 'pydantic==${{ matrix.pydantic }}'
+      - run: python -m ruff check . && python -m ruff format --check .
+      - run: python -m pytest -q
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - run: python scripts/verify_artifacts.py dist/*

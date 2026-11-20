@@ -1,0 +1,55 @@
+{
+ "digest": "c3562b735d423987199a052fef0acc8c0d9eee7414eab7f519804c0df94649f2",
+ "plan": {
+  "fallback": true,
+  "max_items": 1000,
+  "steps": [
+   {
+    "call": "call1",
+    "config": {},
+    "id": "call1",
+    "inputs": [],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": "openai/gpt-5.6-sol",
+    "op": "llm",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {},
+    "id": "reduction",
+    "inputs": [
+     "call1#/amounts"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "decimal_sum",
+    "output_schema": null,
+    "prompt": null
+   },
+   {
+    "call": null,
+    "config": {
+     "fields": [
+      "total"
+     ]
+    },
+    "id": "answer",
+    "inputs": [
+     "reduction#"
+    ],
+    "instruction_mode": "original_call_ref",
+    "messages": null,
+    "model": null,
+    "op": "object",
+    "output_schema": null,
+    "prompt": null
+   }
+  ],
+  "version": "function-plan-v2"
+ },
+ "version": "function-plan-v2"
+}
